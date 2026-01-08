@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "247947105236",
+    "project_id": "my-first-app-881b4",
+    "storage_bucket": "my-first-app-881b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247947105236:android:ee773389177dd54f563c41",
+        "android_client_info": {
+          "package_name": "com.example.zionshopings"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "247947105236-vnshqssavst41gs39os2a6qli62atoi2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.zionshopings",
+            "certificate_hash": "677bcdca0693074aaeced6d92fbabd77dc649c64"
+          }
+        },
+        {
+          "client_id": "247947105236-borh70134je011v76qpp5uk4lnnupdun.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMDUiXD_OFM5Vir9MqIYDUOBRi8HF6PzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "247947105236-borh70134je011v76qpp5uk4lnnupdun.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "247947105236-38r3dvljm6navkcg1fh77ap0pv7hjnot.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.zionshopings"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
