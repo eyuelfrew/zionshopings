@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zionshopings/services/theme_controller.dart';
 import 'package:zionshopings/theme/app_theme.dart';
+import 'package:zionshopings/utils/auth_helper.dart';
+import 'package:zionshopings/widgets/sign_in_bottom_sheet.dart';
 import '../auth/auth_controller.dart';
 import 'wishlist_screen.dart';
 import 'help_center_screen.dart';
@@ -23,6 +26,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Consumer<AuthController>(
       builder: (context, controller, child) {
         final user = controller.state.user;
+        final isGuest = user == null;
+        
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: CustomScrollView(
@@ -55,24 +60,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(height: 60),
-                          Text(
-                            user?.displayName ?? 'Jane Doe',
-                            style: const TextStyle(
+                          if (isGuest) ...[
+                            const Icon(
+                              Icons.person_outline_rounded,
+                              size: 48,
                               color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
-                              ],
                             ),
-                          ),
-                          Text(
-                            user?.email ?? 'jane.doe@example.com',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 14,
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Guest User',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
+                                ],
+                              ),
                             ),
-                          ),
+                            const Text(
+                              'Sign in for a personalized experience',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ] else ...[
+                            Text(
+                              user.displayName ?? 'User',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              user.email ?? '',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -92,6 +124,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
+                      // Sign In Card for Guest Users
+                      if (isGuest) ...[
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF69B4), Color(0xFFFF1493)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryColor.withOpacity(0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.card_giftcard_rounded,
+                                size: 48,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Unlock Premium Features',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Sign in to save your wishlist, track orders, and get personalized recommendations',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    await SignInBottomSheet.show(context);
+                                  },
+                                  icon: const Icon(Icons.login),
+                                  label: const Text(
+                                    'Sign In with Google',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: AppTheme.primaryColor,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                      ],
+
                       // Quick Actions Grid
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -109,16 +216,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildQuickAction(context, Icons.inventory_2_outlined, 'Orders'),
-                            _buildQuickAction(context, Icons.favorite_border_rounded, 'Wishlist', onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const WishlistScreen()));
-                            }),
-                            _buildQuickAction(context, Icons.location_on_outlined, 'Addresses', onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const AddressScreen()));
-                            }),
-                            _buildQuickAction(context, Icons.help_outline_rounded, 'Help', onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpCenterScreen()));
-                            }),
+                            _buildQuickAction(
+                              context,
+                              Icons.inventory_2_outlined,
+                              'Orders',
+                              requiresAuth: true,
+                            ),
+                            _buildQuickAction(
+                              context,
+                              Icons.favorite_border_rounded,
+                              'Wishlist',
+                              requiresAuth: true,
+                              onTap: () async {
+                                if (isGuest) {
+                                  await AuthHelper.requireAuth(
+                                    context,
+                                    message: 'Sign in to view your wishlist and save your favorite items.',
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const WishlistScreen()),
+                                  );
+                                }
+                              },
+                            ),
+                            _buildQuickAction(
+                              context,
+                              Icons.location_on_outlined,
+                              'Addresses',
+                              requiresAuth: true,
+                              onTap: () async {
+                                if (isGuest) {
+                                  await AuthHelper.requireAuth(
+                                    context,
+                                    message: 'Sign in to manage your delivery addresses.',
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const AddressScreen()),
+                                  );
+                                }
+                              },
+                            ),
+                            _buildQuickAction(
+                              context,
+                              Icons.help_outline_rounded,
+                              'Help',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const HelpCenterScreen()),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -187,22 +339,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       const SizedBox(height: 40),
 
-                      // Sign Out Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                          onPressed: () => context.read<AuthController>().signOut(),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.redAccent,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              side: const BorderSide(color: Colors.redAccent, width: 1),
+                      // Sign Out Button (only show if authenticated)
+                      if (!isGuest)
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () async {
+                              await context.read<AuthController>().signOut();
+                              
+                              // Clear guest mode flag
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.setBool('guest_mode', false);
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.redAccent,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                side: const BorderSide(color: Colors.redAccent, width: 1),
+                              ),
                             ),
+                            child: const Text('Sign Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
-                          child: const Text('Sign Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         ),
-                      ),
                       const SizedBox(height: 100), // Space for bottom navbar
                     ],
                   ),
@@ -215,18 +374,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildQuickAction(BuildContext context, IconData icon, String label, {VoidCallback? onTap}) {
+  Widget _buildQuickAction(
+    BuildContext context,
+    IconData icon,
+    String label, {
+    VoidCallback? onTap,
+    bool requiresAuth = false,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 24),
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppTheme.primaryColor, size: 24),
+              ),
+              if (requiresAuth && !AuthHelper.isAuthenticated(context))
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.lock,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
           Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),

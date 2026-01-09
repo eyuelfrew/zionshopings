@@ -6,6 +6,7 @@ import 'package:zionshopings/screens/product_detail_screen.dart';
 import 'package:zionshopings/services/cart_controller.dart';
 import 'package:zionshopings/services/wishlist_controller.dart';
 import 'package:zionshopings/theme/app_theme.dart';
+import 'package:zionshopings/utils/auth_helper.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -22,7 +23,17 @@ class ProductCard extends StatefulWidget {
 class _ProductCardState extends State<ProductCard> {
   bool _isAddingToBag = false;
 
-  void _toggleFavorite() {
+  Future<void> _toggleFavorite() async {
+    // Check if user is authenticated
+    final isAuthenticated = await AuthHelper.requireAuth(
+      context,
+      message: 'Sign in to save items to your wishlist and access them across all your devices.',
+    );
+
+    if (!isAuthenticated) {
+      return;
+    }
+
     // Haptic feedback
     HapticFeedback.lightImpact();
     
@@ -55,6 +66,16 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Future<void> _addToBag() async {
+    // Check if user is authenticated
+    final isAuthenticated = await AuthHelper.requireAuth(
+      context,
+      message: 'Sign in to add items to your bag and complete your purchase.',
+    );
+
+    if (!isAuthenticated) {
+      return;
+    }
+
     // Haptic feedback
     HapticFeedback.mediumImpact();
     

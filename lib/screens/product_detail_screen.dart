@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:zionshopings/models/product_model.dart';
 import 'package:zionshopings/services/cart_controller.dart';
 import 'package:zionshopings/theme/app_theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -16,11 +18,20 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool _isAddingToBag = false;
+  List<Product> _relatedProducts = [];
+  bool _isLoadingRelated = true;
+  String? _relatedProductsError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRelatedProducts();
+  }
 
   Future<void> _addToBag() async {
     // Haptic feedback
     HapticFeedback.mediumImpact();
-    
+
     setState(() {
       _isAddingToBag = true;
     });
@@ -48,6 +59,48 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         );
       }
+  }
+
+  Future<void> _loadRelatedProducts() async {
+    try {
+      // Fetch products from the same category, excluding the current product
+      final response = await http.get(
+        Uri.parse('http://localhost:5000/api/products?category=${widget.product.category}&limit=10'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<dynamic> productsJson = [];
+
+        // Handle the actual API response structure: { "status": "success", "data": { "items": [...] } }
+        if (data is Map && data.containsKey('data') && data['data'] is Map && data['data'].containsKey('items')) {
+          productsJson = data['data']['items'] as List? ?? [];
+        }
+
+        // Filter out the current product and take up to 4 related products
+        final allRelated = productsJson
+            .map((json) => Product.fromJson(json))
+            .where((product) => product.id != widget.product.id)
+            .take(4)
+            .toList();
+
+        setState(() {
+          _relatedProducts = allRelated;
+          _isLoadingRelated = false;
+        });
+      } else {
+        setState(() {
+          _relatedProductsError = 'Failed to load related products';
+          _isLoadingRelated = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _relatedProductsError = 'Error loading related products: $e';
+        _isLoadingRelated = false;
+      });
+    }
   }
 
   @override
@@ -158,6 +211,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   _buildInfoRow('Status', widget.product.status),
                   const SizedBox(height: 10),
                   _buildInfoRow('Created', widget.product.createdAt),
+                  const SizedBox(height: 20), // Space before related products
+
+                  // Related Products Section
+                  if (_relatedProducts.isNotEmpty || _isLoadingRelated || _relatedProductsError != null)
+                    _buildRelatedProductsSection(),
+
                   const SizedBox(height: 80), // Extra space for FAB
                 ],
               ),
@@ -209,6 +268,127 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildRelatedProductsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: Text(
+            'Related Products',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ),
+        const SizedBox(height: 15),
+        _isLoadingRelated
+            ? SizedBox(
+                height: 200,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : _relatedProductsError != null
+                ? Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.red),
+                          const SizedBox(height: 8),
+                          Text(_relatedProductsError!),
+                          TextButton(
+                            onPressed: _loadRelatedProducts,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : _relatedProducts.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(
+                          child: Text('No related products found'),
+                        ),
+                      )
+                    : SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _relatedProducts.length,
+                          itemBuilder: (context, index) {
+                            final product = _relatedProducts[index];
+                            return Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(right: 15),
+                              child: Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Product Image
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.vertical(
+                                          top: Radius.circular(12),
+                                        ),
+                                        child: Image.network(
+                                          'http://localhost:5000${product.primaryImagePath}',
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) => Container(
+                                            color: Colors.grey[200],
+                                            child: const Icon(
+                                              Icons.image_not_supported_outlined,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    // Product Name and Price
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            product.name,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              height: 1.2,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '\$${product.price.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context).colorScheme.primary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
       ],
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/auth_controller.dart';
 import '../theme/app_theme.dart';
+import 'main_app_shell.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -58,23 +60,80 @@ class LoginScreen extends StatelessWidget {
                       ),
                     );
                   }
-                  return ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<AuthController>().signInWithGoogle();
-                    },
-                    icon: Image.asset('assets/images/google_logo.png', height: 24.0), // Make sure you have this asset
-                    label: const Text('Continue with Google'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: AppTheme.textColor,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  return Column(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          await context.read<AuthController>().signInWithGoogle();
+                          
+                          // Clear guest mode after successful sign in
+                          if (controller.state.user != null) {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('guest_mode', false);
+                          }
+                        },
+                        icon: Image.asset(
+                          'assets/images/google_logo.png',
+                          height: 24.0,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.login, size: 24),
+                        ),
+                        label: const Text('Continue with Google'),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: AppTheme.textColor,
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
+                      const SizedBox(height: 16),
+                      
+                      // Continue as Guest Button
+                      TextButton(
+                        onPressed: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool('guest_mode', true);
+                          
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const MainAppShell()),
+                            );
+                          }
+                        },
+                        child: const Text(
+                          'Continue as Guest',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
+
+              // Facebook Sign In (Commented for future use)
+              // const SizedBox(height: 16),
+              // OutlinedButton.icon(
+              //   onPressed: () {
+              //     //  Implement Facebook sign in
+              //   },
+              //   icon: const Icon(Icons.facebook, color: Color(0xFF1877F2)),
+              //   label: const Text('Continue with Facebook'),
+              //   style: OutlinedButton.styleFrom(
+              //     foregroundColor: const Color(0xFF1877F2),
+              //     side: const BorderSide(color: Color(0xFF1877F2)),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //     padding: const EdgeInsets.symmetric(vertical: 16),
+              //   ),
+              // ),
             ],
           ),
         ),

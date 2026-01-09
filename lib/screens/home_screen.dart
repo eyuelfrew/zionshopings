@@ -21,6 +21,7 @@ import 'package:zionshopings/services/carousel_service.dart';
 import 'package:zionshopings/models/carousel_model.dart';
 import 'package:zionshopings/theme/app_theme.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:zionshopings/utils/auth_helper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -162,11 +163,18 @@ class _HomeScreenState extends State<HomeScreen> {
           // Favorites/Heart icon
           IconButton(
             icon: const Icon(Icons.favorite_border_rounded, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final isAuthenticated = await AuthHelper.requireAuth(
                 context,
-                MaterialPageRoute(builder: (context) => const WishlistScreen()),
+                message: 'Sign in to view your wishlist and save your favorite items.',
               );
+              
+              if (isAuthenticated && mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WishlistScreen()),
+                );
+              }
             },
           ),
           // Shopping bag/Cart icon with badge
@@ -177,11 +185,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      final isAuthenticated = await AuthHelper.requireAuth(
                         context,
-                        MaterialPageRoute(builder: (context) => const CartScreen()),
+                        message: 'Sign in to view your shopping bag and complete your purchase.',
                       );
+                      
+                      if (isAuthenticated && mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CartScreen()),
+                        );
+                      }
                     },
                   ),
                   if (cart.itemCount > 0)

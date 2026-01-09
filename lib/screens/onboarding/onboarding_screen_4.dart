@@ -224,8 +224,8 @@ class _OnboardingScreen4State extends State<OnboardingScreen4> {
                     ),
               ),
               const SizedBox(height: 40),
-              // Continue button
-              ElevatedButton(
+              // Sign In with Google button
+              ElevatedButton.icon(
                 onPressed: () async {
                   // Mark onboarding as completed
                   final prefs = await SharedPreferences.getInstance();
@@ -237,6 +237,7 @@ class _OnboardingScreen4State extends State<OnboardingScreen4> {
                     MaterialPageRoute(builder: (context) => const AuthWrapper()),
                   );
                 },
+                icon: const Icon(Icons.login, size: 20),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF880E4F), // Dark pink
                   foregroundColor: Colors.white,
@@ -245,9 +246,33 @@ class _OnboardingScreen4State extends State<OnboardingScreen4> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text(
-                  'Continue',
+                label: const Text(
+                  'Sign In with Google',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 15),
+              // Skip button
+              TextButton(
+                onPressed: () async {
+                  // Mark onboarding as completed and enable guest mode
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('has_completed_onboarding', true);
+                  await prefs.setBool('guest_mode', true);
+
+                  // Navigate to main app as guest
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                  );
+                },
+                child: const Text(
+                  'Skip for now',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF880E4F),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
