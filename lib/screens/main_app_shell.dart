@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:zionshopings/screens/category_listing_screen.dart';
 import 'package:zionshopings/screens/home_screen.dart';
-import 'package:zionshopings/screens/product_listing_screen.dart';
 import 'package:zionshopings/screens/profile_screen.dart';
 import 'package:zionshopings/screens/wishlist_screen.dart';
 import 'package:zionshopings/widgets/zion_bottom_navbar.dart';
@@ -17,7 +17,7 @@ class _MainAppShellState extends State<MainAppShell> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
-    ProductListingScreen(),
+    CategoryListingScreen(), // Updated screen
     WishlistScreen(),
     ProfileScreen(),
   ];

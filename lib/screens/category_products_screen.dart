@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zionshopings/models/product_model.dart';
 import 'package:zionshopings/widgets/product_card.dart';
 import 'package:zionshopings/widgets/skeleton_loader.dart';
+import 'package:zionshopings/widgets/category_card.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/category_model.dart';
@@ -24,6 +25,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   bool _isLoading = true;
   List<Product> _products = [];
   List<Category> _subCategories = [];
+  List<Category> _allCategories = [];
   String? _error;
   final String _baseUrl = 'http://localhost:5000';
 
@@ -37,23 +39,23 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     setState(() {
       _isLoading = true;
     });
-    
-    await Future.wait([
-      _loadCategoryProducts(),
-      _loadSubCategories(),
-    ]);
 
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _loadSubCategories() async {
     try {
-      final allCategories = await CategoryService().getCategories();
-      _subCategories = allCategories.where((c) => c.parentId == widget.category.id).toList();
+      // Load all categories to determine if there are subcategories
+      _allCategories = await CategoryService().getCategories();
+      _subCategories = _allCategories.where((c) => c.parentId == widget.category.id).toList();
+
+      // If there are no subcategories, load products for this category
+      if (_subCategories.isEmpty) {
+        await _loadCategoryProducts();
+      }
     } catch (e) {
-      debugPrint('Error loading subcategories: $e');
+      debugPrint('Error loading data: $e');
+      _error = 'Error loading data: $e';
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -228,28 +230,35 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                     widget.category.name,
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    '${_products.length} products',
-                    style: const TextStyle(fontSize: 13, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('🎁 Most Gifted'),
-                        _buildFilterChip('🔥 New at Zion'),
-                        _buildFilterChip('⭐ Top Rated'),
-                        _buildFilterChip('👍 Bestseller'),
-                      ],
+                  if (_subCategories.isNotEmpty)
+                    Text(
+                      '${_subCategories.length} subcategories',
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    )
+                  else
+                    Text(
+                      '${_products.length} products',
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
-                  ),
+                  const SizedBox(height: 16),
+                  if (_subCategories.isEmpty) // Only show filters for products, not subcategories
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip('🎁 Most Gifted'),
+                          _buildFilterChip('🔥 New at Zion'),
+                          _buildFilterChip('⭐ Top Rated'),
+                          _buildFilterChip('👍 Bestseller'),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
 
-          // 4. Product Grid
+          // 4. Content Grid (either subcategories or products)
           if (_isLoading)
             SliverFillRemaining(
               child: _buildLoadingSkeleton(),
@@ -258,11 +267,35 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             SliverFillRemaining(
               child: Center(child: Text('Error: $_error')),
             )
+          else if (_subCategories.isNotEmpty)
+            // Show subcategories
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.52,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final subCategory = _subCategories[index];
+                    return CategoryCard(
+                      category: subCategory,
+                      allCategories: _allCategories, // Pass all categories to determine if subcategory has its own subcategories
+                    );
+                  },
+                  childCount: _subCategories.length,
+                ),
+              ),
+            )
           else if (_products.isEmpty)
             SliverFillRemaining(
               child: const Center(child: Text('No products found')),
             )
           else
+            // Show products
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               sliver: SliverGrid(

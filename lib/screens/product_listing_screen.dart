@@ -1,39 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:zionshopings/models/product_model.dart';
+import 'package:zionshopings/models/category_model.dart';
 import 'package:zionshopings/widgets/product_card.dart';
-import 'package:zionshopings/widgets/skeleton_loader.dart';
+import 'package:zionshopings/services/category_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ProductListingScreen extends StatefulWidget {
-  const ProductListingScreen({super.key});
+  final String? initialCategory;
+  final String? initialSearchTerm;
+
+  const ProductListingScreen({
+    super.key,
+    this.initialCategory,
+    this.initialSearchTerm,
+  });
 
   @override
-  _ProductListingScreenState createState() => _ProductListingScreenState();
+  State<ProductListingScreen> createState() => _ProductListingScreenState();
 }
 
 class _ProductListingScreenState extends State<ProductListingScreen> {
+  // Controllers and state variables
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  Timer? _debounceTimer;
+
+  // Product and category data
+  List<Product> _products = [];
+  List<Category> _categories = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
-  List<Product> _products = [];
   String? _error;
-  String _selectedCategory = '';
-  String _searchQuery = '';
-  String _sortBy = 'date'; // Default sort by date
-  String _sortDir = 'desc'; // Default sort descending
   int _currentPage = 1;
   bool _hasMore = true;
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounceTimer;
+
+  // Filter and sort parameters
+  String? _selectedCategory;
+  String _sortBy = 'date'; // Default sort by date
+  String _sortDir = 'desc'; // Default sort descending
+  String _searchQuery = '';
+
+  // Refresh controller for pull-to-refresh
+  final RefreshController _refreshController = RefreshController();
 
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    
+    // Initialize with initial values if provided
+    if (widget.initialCategory != null) {
+      _selectedCategory = widget.initialCategory;
+    }
+    if (widget.initialSearchTerm != null) {
+      _searchQuery = widget.initialSearchTerm!;
+      _searchController.text = _searchQuery;
+    }
+    
     _setupScrollController();
     _setupSearchController();
+    _loadInitialData();
   }
 
   void _setupScrollController() {
@@ -54,7 +82,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
       }
       _debounceTimer = Timer(const Duration(milliseconds: 300), () {
         setState(() {
-          _searchQuery = _searchController.text;
+          _searchQuery = _searchController.text.trim();
           _currentPage = 1;
           _products.clear();
           _hasMore = true;
@@ -64,7 +92,24 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     });
   }
 
+  Future<void> _loadInitialData() async {
+    try {
+      // Load categories
+      _categories = await CategoryService().getCategories();
+      
+      // Load initial products
+      await _loadProducts();
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load data: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<void> _loadProducts() async {
+    if (_isLoading && _currentPage == 1) return; // Prevent duplicate initial loads
+
     try {
       setState(() {
         if (_currentPage == 1) {
@@ -74,16 +119,17 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
         }
       });
 
+      // Build the API URL with query parameters
       String url = 'http://localhost:5000/api/products?page=$_currentPage&limit=20';
-
-      if (_selectedCategory.isNotEmpty) {
+      
+      if (_selectedCategory != null && _selectedCategory!.isNotEmpty) {
         url += '&category=$_selectedCategory';
       }
-
+      
       if (_searchQuery.isNotEmpty) {
         url += '&search=$_searchQuery';
       }
-
+      
       url += '&sortBy=$_sortBy&sortDir=$_sortDir';
 
       final response = await http.get(
@@ -94,35 +140,35 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         List<dynamic> productsJson = [];
+        int totalProducts = 0;
 
-        // Handle the actual API response structure: { "status": "success", "data": { "items": [...] } }
-        if (data is Map && data.containsKey('data') && data['data'] is Map && data['data'].containsKey('items')) {
-          productsJson = data['data']['items'] as List? ?? [];
+        if (data is Map && data.containsKey('data') && data['data'] is Map) {
+          if (data['data'].containsKey('items')) {
+            productsJson = data['data']['items'] as List? ?? [];
+          }
+          if (data['data'].containsKey('total')) {
+            totalProducts = data['data']['total'] as int? ?? 0;
+          }
         }
 
-        // Check if there are more products available
-        _hasMore = productsJson.length == 20; // If we got 20 items, there might be more
+        if (_currentPage == 1) {
+          _products = productsJson.map((json) => Product.fromJson(json)).toList();
+        } else {
+          _products.addAll(productsJson.map((json) => Product.fromJson(json)).toList());
+        }
 
-        setState(() {
-          if (_currentPage == 1) {
-            _products = productsJson.map((json) => Product.fromJson(json)).toList();
-          } else {
-            _products.addAll(productsJson.map((json) => Product.fromJson(json)).toList());
-          }
-          _isLoading = false;
-          _isLoadingMore = false;
-          _error = null;
-        });
+        _hasMore = _products.length < totalProducts;
       } else {
         setState(() {
           _error = 'Failed to load products: ${response.statusCode}';
-          _isLoading = false;
-          _isLoadingMore = false;
         });
       }
     } catch (e) {
       setState(() {
-        _error = 'Error loading products: $e';
+        _error = 'Connection error: $e';
+      });
+    } finally {
+      setState(() {
         _isLoading = false;
         _isLoadingMore = false;
       });
@@ -136,10 +182,39 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     await _loadProducts();
   }
 
+  Future<void> _refreshProducts() async {
+    _currentPage = 1;
+    _products.clear();
+    _hasMore = true;
+    await _loadProducts();
+    _refreshController.refreshCompleted();
+  }
+
+  void _onCategoryChanged(String? category) {
+    setState(() {
+      _selectedCategory = category;
+      _currentPage = 1;
+      _products.clear();
+      _hasMore = true;
+    });
+    _loadProducts();
+  }
+
+  void _onSortChanged(String sortBy, String sortDir) {
+    setState(() {
+      _sortBy = sortBy;
+      _sortDir = sortDir;
+      _currentPage = 1;
+      _products.clear();
+      _hasMore = true;
+    });
+    _loadProducts();
+  }
+
   @override
   void dispose() {
-    _scrollController.dispose();
     _searchController.dispose();
+    _scrollController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
@@ -148,8 +223,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Listing'),
-        centerTitle: true,
+        title: const Text('Products'),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -159,218 +233,172 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
             ),
           ),
         ),
-        elevation: 2,
         titleTextStyle: const TextStyle(
           color: Colors.white,
-          fontSize: 20,
           fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Container(
-        color: Colors.white,
-        child: Column(
+      body: Column(
         children: [
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Container(
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
               ),
+            ),
+          ),
+
+          // Category filter chips
+          if (_categories.isNotEmpty)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.search,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search for products...',
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
+                  _buildCategoryChip(null, 'All'),
+                  ..._categories.map((category) => 
+                    _buildCategoryChip(category.name, category.name)
                   ),
                 ],
               ),
             ),
-          ),
-          // Category filter chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildCategoryChip('All', true),
-                _buildCategoryChip('Electronics', false),
-                _buildCategoryChip('Fashion', false),
-                _buildCategoryChip('Home', false),
-                _buildCategoryChip('Beauty', false),
-                _buildCategoryChip('Sports', false),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
+
           // Sort options
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text('Sort by: '),
-                DropdownButton<String>(
-                  value: _sortBy,
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'date',
-                      child: Text('Date'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'price',
-                      child: Text('Price'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _sortBy = value!;
-                      _currentPage = 1;
-                      _products.clear();
-                      _hasMore = true;
-                      _loadProducts();
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
-                DropdownButton<String>(
-                  value: _sortDir,
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'asc',
-                      child: Text('Asc'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'desc',
-                      child: Text('Desc'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _sortDir = value!;
-                      _currentPage = 1;
-                      _products.clear();
-                      _hasMore = true;
-                      _loadProducts();
-                    });
-                  },
-                ),
+                _buildSortOption('Price: Low to High', 'price', 'asc'),
+                _buildSortOption('Price: High to Low', 'price', 'desc'),
+                _buildSortOption('Newest First', 'date', 'desc'),
+                _buildSortOption('Oldest First', 'date', 'asc'),
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          // Products grid
+
+          // Main content area
           Expanded(
             child: _isLoading && _currentPage == 1
-                ? _buildLoadingGrid()
+                ? const Center(child: CircularProgressIndicator())
                 : _error != null && _products.isEmpty
-                    ? _buildErrorView()
-                    : _products.isEmpty
-                        ? _buildEmptyView()
-                        : _buildProductGrid(),
+                    ? _buildErrorUI()
+                    : _products.isEmpty && (_searchQuery.isNotEmpty || _selectedCategory != null)
+                        ? _buildEmptyState()
+                        : SmartRefresher(
+                            controller: _refreshController,
+                            onRefresh: _refreshProducts,
+                            child: CustomScrollView(
+                              controller: _scrollController,
+                              slivers: [
+                                SliverPadding(
+                                  padding: const EdgeInsets.all(16),
+                                  sliver: SliverGrid(
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: 0.7,
+                                    ),
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        if (index >= _products.length) {
+                                          // Loading indicator at the end when loading more
+                                          if (_isLoadingMore) {
+                                            return const Center(
+                                              child: Padding(
+                                                padding: EdgeInsets.all(16.0),
+                                                child: CircularProgressIndicator(),
+                                              ),
+                                            );
+                                          }
+                                          return null;
+                                        }
+                                        return ProductCard(product: _products[index]);
+                                      },
+                                      childCount: _products.length + (_isLoadingMore ? 1 : 0),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
           ),
-          // Loading more indicator
-          if (_isLoadingMore)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
         ],
       ),
-      ),
     );
   }
 
-  Widget _buildCategoryChip(String category, bool isAll) {
-    String displayCategory = category;
-    if (category == 'All') displayCategory = 'All Products';
-
+  Widget _buildCategoryChip(String? categoryValue, String categoryName) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      padding: const EdgeInsets.only(right: 8.0),
       child: ChoiceChip(
-        label: Text(displayCategory),
-        selected: _selectedCategory == (isAll ? '' : category),
-        selectedColor: Theme.of(context).primaryColor,
+        label: Text(categoryName),
+        selected: _selectedCategory == categoryValue,
         onSelected: (selected) {
-          setState(() {
-            _selectedCategory = selected && !isAll ? category : '';
-            _currentPage = 1;
-            _products.clear();
-            _hasMore = true;
-            _loadProducts();
-          });
+          _onCategoryChanged(selected ? categoryValue : null);
         },
-      ),
-    );
-  }
-
-  Widget _buildLoadingGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: GridView.builder(
-        itemCount: 6,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.55,
+        selectedColor: Theme.of(context).primaryColor,
+        labelStyle: TextStyle(
+          color: _selectedCategory == categoryValue 
+              ? Colors.white 
+              : Colors.black,
         ),
-        itemBuilder: (context, index) {
-          return const SkeletonLoader(height: 250);
-        },
-      ),
-    );
-  }
-
-  Widget _buildProductGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: GridView.builder(
-        controller: _scrollController,
-        itemCount: _products.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.55,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: _selectedCategory == categoryValue 
+                ? Theme.of(context).primaryColor 
+                : Colors.grey.shade300,
+          ),
         ),
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return ProductCard(product: product);
-        },
       ),
     );
   }
 
-  Widget _buildErrorView() {
+  Widget _buildSortOption(String label, String sortBy, String sortDir) {
+    bool isSelected = _sortBy == sortBy && _sortDir == sortDir;
+    
+    return Expanded(
+      child: TextButton(
+        onPressed: () => _onSortChanged(sortBy, sortDir),
+        style: TextButton.styleFrom(
+          backgroundColor: isSelected 
+              ? Theme.of(context).primaryColor 
+              : Colors.grey.shade200,
+          foregroundColor: isSelected ? Colors.white : Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorUI() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -381,19 +409,21 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
             color: Colors.red,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Oops! Something went wrong',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
+          Text(
+            _error ?? 'An error occurred',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _currentPage = 1;
-                _products.clear();
-                _loadProducts();
-              });
-            },
+            onPressed: _refreshProducts,
             child: const Text('Retry'),
           ),
         ],
@@ -401,7 +431,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     );
   }
 
-  Widget _buildEmptyView() {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -412,18 +442,19 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
             color: Colors.grey,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No products found',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             _searchQuery.isNotEmpty
-                ? 'No products match "$_searchQuery"'
-                : _selectedCategory.isNotEmpty
-                    ? 'No products in $_selectedCategory category'
-                    : 'No products available',
-            style: const TextStyle(color: Colors.grey),
+                ? 'Try adjusting your search term'
+                : 'Try selecting a different category',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
