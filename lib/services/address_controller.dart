@@ -18,10 +18,10 @@ class AddressController with ChangeNotifier {
   }
 
   AddressController() {
-    _loadAddresses();
+    loadAddresses();
   }
 
-  Future<void> _loadAddresses() async {
+  Future<void> loadAddresses() async {
     final prefs = await SharedPreferences.getInstance();
     final String? data = prefs.getString(_storageKey);
     if (data != null) {

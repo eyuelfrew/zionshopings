@@ -83,28 +83,42 @@ class _ProductCardState extends State<ProductCard> {
       _isAddingToBag = true;
     });
 
-    // Add to global cart state
-    context.read<CartController>().addToCart(widget.product);
+    try {
+      // Add to cart using cart controller
+      await context.read<CartController>().addToCart(widget.product);
 
-    // Simulate small feedback delay
-    await Future.delayed(const Duration(milliseconds: 300));
+      if (mounted) {
+        setState(() {
+          _isAddingToBag = false;
+        });
 
-    if (mounted) {
-      setState(() {
-        _isAddingToBag = false;
-      });
+        // Clear current snackbar so it doesn't stay visible indefinitely/pile up
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      // Clear current snackbar so it doesn't stay visible indefinitely/pile up
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${widget.product.name} added to bag'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppTheme.primaryColor,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isAddingToBag = false;
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${widget.product.name} added to bag'),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppTheme.primaryColor,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error adding to bag: $e'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -255,17 +269,17 @@ class _ProductCardState extends State<ProductCard> {
                               border: Border.all(color: Colors.grey.shade300),
                               shape: BoxShape.circle,
                             ),
-                              child: Consumer<WishlistController>(
-                                builder: (context, wishlist, child) {
-                                  final isFavorite = wishlist.isFavorite(widget.product.id);
-                                  return Icon(
-                                    isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                    key: ValueKey<bool>(isFavorite),
-                                    size: 14,
-                                    color: isFavorite ? Colors.red : Colors.grey,
-                                  );
-                                },
-                              ),
+                            child: Consumer<WishlistController>(
+                              builder: (context, wishlist, child) {
+                                final isFavorite = wishlist.isFavorite(widget.product.id);
+                                return Icon(
+                                  isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                  key: ValueKey<bool>(isFavorite),
+                                  size: 14,
+                                  color: isFavorite ? Colors.red : Colors.grey,
+                                );
+                              },
+                            ),
                           ),
                         ),
                         const SizedBox(width: 6),

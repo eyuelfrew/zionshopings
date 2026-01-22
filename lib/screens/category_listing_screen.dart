@@ -186,10 +186,10 @@ class _CategoryListingScreenState extends State<CategoryListingScreen> {
     return GestureDetector(
       onTap: () => _onCategoryTap(category),
       child: Container(
-        height: 120, // Increased height for better banner visibility
+        height: 80, // Reduced height for more compact view
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -199,7 +199,7 @@ class _CategoryListingScreenState extends State<CategoryListingScreen> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
           child: Image.network(
             imageUrl,
             fit: BoxFit.cover,

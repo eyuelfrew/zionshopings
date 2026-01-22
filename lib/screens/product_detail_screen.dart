@@ -114,32 +114,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: widget.product.id,
-                child: Image.network(
-                  'http://localhost:5000${widget.product.primaryImagePath}',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Fallback to a placeholder image if the network image fails
-                    return Container(
-                      color: Colors.grey[300],
-                      child: Icon(
-                        Icons.image_not_supported_outlined,
-                        color: Colors.grey[600],
-                        size: 60,
-                      ),
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                child: widget.product.images.isNotEmpty
+                    ? Image.network(
+                        'http://localhost:5000${widget.product.images[0]['path']}',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[300],
+                            child: Icon(
+                              Icons.image_not_supported_outlined,
+                              color: Colors.grey[600],
+                              size: 60,
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        color: Colors.grey[300],
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          color: Colors.grey[600],
+                          size: 60,
                         ),
                       ),
-                    );
-                  },
-                ),
               ),
             ),
           ),
@@ -173,12 +181,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Icon(Icons.star, color: Colors.amber, size: 20),
+                      Icon(Icons.star, color: Colors.amber, size: 18),
                       const SizedBox(width: 5),
                       Text(
                         '4.0', // Using a default rating since it's not in the API model
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -188,8 +197,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   // Description
                   Text(
                     'Description',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                   ),
                   const SizedBox(height: 10),
@@ -197,6 +207,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     widget.product.description,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 13,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -224,23 +235,29 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isAddingToBag ? null : _addToBag,
-        label: _isAddingToBag 
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+      floatingActionButton: SizedBox(
+        height: 42,
+        child: FloatingActionButton.extended(
+          onPressed: _isAddingToBag ? null : _addToBag,
+          label: _isAddingToBag 
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Text(
+                  'Add to Bag',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
-              )
-            : const Text('Add to Bag'),
-        icon: _isAddingToBag ? null : const Icon(Icons.shopping_bag_outlined),
-        backgroundColor: _isAddingToBag 
-            ? Colors.grey 
-            : Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
+          icon: _isAddingToBag ? null : const Icon(Icons.shopping_bag_outlined, size: 20),
+          backgroundColor: _isAddingToBag 
+              ? Colors.grey 
+              : Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -256,6 +273,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             label,
             style: TextStyle(
               fontWeight: FontWeight.bold,
+              fontSize: 13,
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
@@ -264,6 +282,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: Text(
             value,
             style: TextStyle(
+              fontSize: 13,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
@@ -280,8 +299,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Text(
             'Related Products',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
           ),
         ),
@@ -342,7 +362,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                           top: Radius.circular(12),
                                         ),
                                         child: Image.network(
-                                          'http://localhost:5000${product.primaryImagePath}',
+                                          widget.product.images.isNotEmpty
+                                              ? 'http://localhost:5000${widget.product.images[0]['path']}'
+                                              : 'http://localhost:5000${product.images.isNotEmpty ? product.images[0]['path'] : ''}',
+                                          width: double.infinity,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) => Container(
                                             color: Colors.grey[200],

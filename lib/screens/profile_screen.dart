@@ -9,6 +9,7 @@ import '../auth/auth_controller.dart';
 import 'wishlist_screen.dart';
 import 'help_center_screen.dart';
 import 'address_screen.dart';
+import 'order_history_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -221,6 +222,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Icons.inventory_2_outlined,
                               'Orders',
                               requiresAuth: true,
+                              onTap: () async {
+                                if (isGuest) {
+                                  await AuthHelper.requireAuth(
+                                    context,
+                                    message: 'Sign in to view your order history.',
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+                                  );
+                                }
+                              },
                             ),
                             _buildQuickAction(
                               context,
@@ -280,7 +294,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // Account Settings Section
                       _buildSectionTitle(context, 'Account Settings'),
                       _buildSettingsGroup([
-
+                        _buildSettingsTile(
+                          context,
+                          Icons.shopping_bag_outlined,
+                          'Order History',
+                          onTap: () async {
+                            if (isGuest) {
+                              await AuthHelper.requireAuth(
+                                context,
+                                message: 'Sign in to view your order history.',
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+                              );
+                            }
+                          },
+                        ),
                         _buildSettingsTile(
                           context,
                           Icons.notifications_none_rounded,

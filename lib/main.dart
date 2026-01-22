@@ -9,8 +9,7 @@ import 'package:zionshopings/services/wishlist_controller.dart';
 import 'package:zionshopings/services/address_controller.dart';
 import 'auth/auth_controller.dart';
 import 'screens/auth_wrapper.dart';
-import 'screens/onboarding/onboarding_flow_screen.dart';
-import 'package:zionshopings/theme/app_theme.dart';
+import 'screens/onboarding/onboarding_flow_screen.dart';import 'package:zionshopings/theme/app_theme.dart';
 import 'firebase_options.dart';
 
 
@@ -28,7 +27,14 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthController()),
-        ChangeNotifierProvider(create: (_) => CartController()),
+        ChangeNotifierProvider(
+          create: (_) {
+            final cartController = CartController();
+            // Load cart on app start
+            cartController.loadCart();
+            return cartController;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => WishlistController()),
         ChangeNotifierProvider(create: (_) => ThemeController()),
         ChangeNotifierProvider(create: (_) => AddressController()), 

@@ -8,47 +8,47 @@ class DiscoveryGuideSection extends StatelessWidget {
     {
       'title': 'Lips',
       'color': Color(0xFFFFEBEE), // Light Pink
-      'image': 'https://media.istockphoto.com/id/1360667634/photo/red-lipstick-smear-on-white.jpg?s=612x612&w=0&k=20&c=K53eT8JvR8I4S4-X3uVf_v0i8R3E6XmE6I5yG9-_s_Y=', // Representative
+      'icon': Icons.face_retouching_natural,
     },
     {
       'title': 'Lip Balm',
       'color': Color(0xFFFFF0F0), // Peach
-      'image': 'https://media.istockphoto.com/id/1322044810/photo/lip-balm-organic-cosmetics-with-natural-ingredients-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=L_YFjU8_m6vK5p3G_D2n7T6vL_I_N_E_F_G_H_I_J_K=',
+      'icon': Icons.favorite_border,
     },
     {
       'title': 'Shampoo',
       'color': Color(0xFFE3F2FD), // Light Blue
-      'image': 'https://media.istockphoto.com/id/1149451978/photo/shampoo-bottle-isolated-on-white.jpg?s=612x612&w=0&k=20&c=f-X_n_Q8u_V_v_Y_f-o_X_Y_V_v_V_v_V_v_V_v_V_w=',
+      'icon': Icons.water_drop_outlined,
     },
     {
       'title': 'Face\nWash',
       'color': Color(0xFFF1F8E9), // Light Green
-      'image': 'https://media.istockphoto.com/id/1297155685/photo/face-wash-tube-isolated-on-white.jpg?s=612x612&w=0&k=20&c=v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_k=',
+      'icon': Icons.face,
     },
     {
       'title': 'Kajal',
       'color': Color(0xFFF5F5F5), // Light Grey
-      'image': 'https://media.istockphoto.com/id/1314644717/photo/kajal-pencil-isolated-on-white.jpg?s=612x612&w=0&k=20&c=V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_Q=',
+      'icon': Icons.brush,
     },
     {
       'title': 'Serums &\nEssence',
       'color': Color(0xFFF3E5F5), // Light Purple
-      'image': 'https://media.istockphoto.com/id/1301980894/photo/serum-bottle-isolated-on-white.jpg?s=612x612&w=0&k=20&c=v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_I=',
+      'icon': Icons.science_outlined,
     },
     {
       'title': 'Moisturizer',
       'color': Color(0xFFFFF3E0), // Light Orange
-      'image': 'https://media.istockphoto.com/id/1051915952/photo/cosmetic-cream-bottle-isolated-on-white.jpg?s=612x612&w=0&k=20&c=v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_U=',
+      'icon': Icons.spa_outlined,
     },
     {
       'title': 'Body Wash',
       'color': Color(0xFFE0F7FA), // Light Cyan
-      'image': 'https://media.istockphoto.com/id/1253406322/photo/shower-gel-bottle-isolated-on-white.jpg?s=612x612&w=0&k=20&c=v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_A=',
+      'icon': Icons.shower_outlined,
     },
     {
       'title': 'Suncare',
       'color': Color(0xFFFFFDE7), // Light Yellow
-      'image': 'https://media.istockphoto.com/id/1304561845/photo/sunscreen-tube-isolated-on-white.jpg?s=612x612&w=0&k=20&c=v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_V_v_O=',
+      'icon': Icons.wb_sunny_outlined,
     },
   ];
 
@@ -135,22 +135,14 @@ class DiscoveryGuideSection extends StatelessWidget {
                 ),
               ),
             ),
-            // Representative Image (Right Aligned)
+            // Icon (Right Aligned)
             Positioned(
-              bottom: 0,
-              right: 0,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(bottomRight: Radius.circular(24)),
-                child: SizedBox(
-                  width: 70,
-                  height: 90,
-                  child: Image.network(
-                    item['image'],
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.category, size: 20),
-                    alignment: Alignment.bottomRight,
-                  ),
-                ),
+              bottom: 15,
+              right: 15,
+              child: Icon(
+                item['icon'],
+                size: 40,
+                color: Colors.black.withOpacity(0.3),
               ),
             ),
           ],
