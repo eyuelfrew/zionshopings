@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../auth_wrapper.dart';
 
 class OnboardingScreen4 extends StatefulWidget {
@@ -13,270 +14,218 @@ class _OnboardingScreen4State extends State<OnboardingScreen4> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            const Color(0xFFFFF5F5), // Light pink
-            const Color(0xFFFFFFFF), // White
-          ],
-        ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Joyful woman with shopping bags and beauty products
-              Container(
-                height: 350,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.pink.shade100,
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
-                    ),
-                  ],
-                ),
+              // Visual Illustration Area - Slightly smaller to fit
+              SizedBox(
+                height: 320,
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    // Warm pink gradient background
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFFFF0F5), // Soft pink
-                            Color(0xFFFFF8F7), // Light pink
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    // Woman's joyful face
+                    // Background Glow
                     Positioned(
-                      top: 20,
-                      left: 0,
-                      right: 0,
+                      top: 40,
                       child: Container(
-                        height: 150,
+                        width: 280,
+                        height: 280,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: const Color(0xFFFFF0F0).withOpacity(0.7),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.8),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.emoji_emotions,
-                          size: 100,
-                          color: Color(0xFFFFB7C9), // Soft pink face icon
-                        ),
-                      ),
-                    ),
-                    // Shopping bags
-                    Positioned(
-                      bottom: 30,
-                      left: 40,
-                      child: Container(
-                        width: 60,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFE0B2), // Light orange
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFFE0B2).withOpacity(0.6),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.shopping_bag,
-                          color: Color(0xFFE65100), // Orange
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 30,
-                      right: 40,
-                      child: Container(
-                        width: 60,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFC8E6C9), // Light green
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFC8E6C9).withOpacity(0.6),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.shopping_bag,
-                          color: Color(0xFF2E7D32), // Green
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                    // Beauty products floating around
-                    Positioned(
-                      top: 80,
-                      left: 10,
-                      child: Container(
-                        width: 40,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFEBEE), // Light red
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFFEBEE).withOpacity(0.6),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.linear_scale,
-                          color: Color(0xFFC2185B), // Pink
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 80,
-                      right: 10,
-                      child: Container(
-                        width: 40,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E9), // Light green
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFE8F5E9).withOpacity(0.6),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.pin,
-                          color: Color(0xFF388E3C), // Green
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                    // Soft glow effect
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
+                          shape: BoxShape.circle,
                           gradient: RadialGradient(
-                            center: const Alignment(0, -0.3),
-                            radius: 1.5,
                             colors: [
-                              Colors.transparent,
-                              const Color(0x22FFCDD2).withOpacity(0.3),
+                              const Color(0xFFFF1493).withOpacity(0.2),
+                              Colors.white.withOpacity(0.0),
                             ],
                           ),
                         ),
                       ),
                     ),
+                    // Large Decorative Circle
+                    Container(
+                      width: 240,
+                      height: 240,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFFF1493).withOpacity(0.05),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    // Inner Design Elements
+                    Center(
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFFF1F8E9),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF1493).withOpacity(0.1),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 100,
+                            color: const Color(0xFFFF1493).withAlpha(180),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Floating Elements
+                    _buildFloatingElement(
+                      top: 40,
+                      left: 15,
+                      icon: Icons.check_circle,
+                      color: const Color(0xFFFF1493),
+                    ),
+                    _buildFloatingElement(
+                      bottom: 60,
+                      right: 10,
+                      icon: Icons.local_shipping,
+                      color: const Color(0xFFDA121A),
+                    ),
+                    _buildFloatingElement(
+                      top: 80,
+                      right: 20,
+                      icon: Icons.star_border_purple500,
+                      color: const Color(0xFFFF69B4),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
-              // Title
+              const SizedBox(height: 15),
+              // English Title
               Text(
-                'Start Your Journey',
+                'START YOUR JOURNEY',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: const Color(0xFF880E4F), // Dark pink
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
-                    ),
+                style: GoogleFonts.philosopher(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 26,
+                  letterSpacing: 1.2,
+                  color: const Color(0xFF2D2D2D),
+                ),
               ),
-              const SizedBox(height: 20),
-              // Body text
+              const SizedBox(height: 12),
+              // English Description
               Text(
                 'Begin your beauty transformation with premium products curated just for you. Your perfect look awaits.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: const Color(0xFF5D4037), // Brownish text
-                      fontSize: 16,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  height: 1.6,
+                  color: Colors.grey[700],
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Action Buttons
+              Column(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('has_completed_onboarding', true);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                      );
+                    },
+                    icon: Image.asset(
+                      'assets/images/google_logo.png',
+                      height: 24,
                     ),
-              ),
-              const SizedBox(height: 40),
-              // Sign In with Google button
-              ElevatedButton.icon(
-                onPressed: () async {
-                  // Mark onboarding as completed
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('has_completed_onboarding', true);
-
-                  // Navigate back to the auth wrapper which will show login screen
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
-                  );
-                },
-                icon: const Icon(Icons.login, size: 20),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF880E4F), // Dark pink
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    label: Text(
+                      'SIGN IN WITH GOOGLE',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF2D2D2D),
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
-                ),
-                label: const Text(
-                  'Sign In with Google',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 15),
-              // Skip button
-              TextButton(
-                onPressed: () async {
-                  // Mark onboarding as completed and enable guest mode
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('has_completed_onboarding', true);
-                  await prefs.setBool('guest_mode', true);
-
-                  // Navigate to main app as guest
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
-                  );
-                },
-                child: const Text(
-                  'Skip for now',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF880E4F),
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('has_completed_onboarding', true);
+                      await prefs.setBool('guest_mode', true);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                      foregroundColor: const Color(0xFFFF1493),
+                    ),
+                    child: Text(
+                      'Skip for now',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingElement({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.15),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          size: 24,
+          color: color,
         ),
       ),
     );

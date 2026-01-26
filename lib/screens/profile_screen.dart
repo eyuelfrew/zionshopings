@@ -19,6 +19,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeController = context.watch<ThemeController>();
@@ -32,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               // --- Premium Header ---
               SliverAppBar(
@@ -376,11 +385,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: double.infinity,
                           child: TextButton(
                             onPressed: () async {
+                              // 1. Sign out first
                               await context.read<AuthController>().signOut();
                               
-                              // Clear guest mode flag
+                              // 2. Set guest mode flag to true so the user stays in the app
                               final prefs = await SharedPreferences.getInstance();
-                              await prefs.setBool('guest_mode', false);
+                              await prefs.setBool('guest_mode', true);
+                              
+                              // 3. Scroll to the absolute top of the profile screen
+                              if (_scrollController.hasClients) {
+                                _scrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 800),
+                                  curve: Curves.easeOutQuint,
+                                );
+                              }
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.redAccent,

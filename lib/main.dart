@@ -9,7 +9,8 @@ import 'package:zionshopings/services/wishlist_controller.dart';
 import 'package:zionshopings/services/address_controller.dart';
 import 'auth/auth_controller.dart';
 import 'screens/auth_wrapper.dart';
-import 'screens/onboarding/onboarding_flow_screen.dart';import 'package:zionshopings/theme/app_theme.dart';
+import 'screens/onboarding/onboarding_flow_screen.dart';
+import 'package:zionshopings/theme/app_theme.dart';
 import 'firebase_options.dart';
 
 
@@ -77,8 +78,8 @@ class _OnboardingOrAuthWrapperState extends State<OnboardingOrAuthWrapper> {
     final hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
 
     setState(() {
-      _isCheckingOnboarding = false;
       _hasCompletedOnboarding = hasCompletedOnboarding;
+      _isCheckingOnboarding = false;
     });
   }
 
@@ -93,7 +94,7 @@ class _OnboardingOrAuthWrapperState extends State<OnboardingOrAuthWrapper> {
       return const OnboardingFlowScreen();
     }
 
-    // Otherwise, show the auth wrapper as before
+    // Otherwise, show the auth wrapper
     return const AuthWrapper();
   }
 }

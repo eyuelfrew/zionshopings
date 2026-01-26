@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zionshopings/screens/main_app_shell.dart';
-import 'package:zionshopings/theme/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,13 +25,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _controller.forward();
-
-    Future.delayed(const Duration(seconds: 4), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainAppShell()),
-      );
-    });
+    
+    // Auth Check usually happens here or in AuthWrapper
   }
 
   @override
@@ -44,9 +38,40 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
+          // Background Flair
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFFFF1493).withOpacity(0.08),
+                    Colors.white.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -50,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFFF1493).withOpacity(0.03),
+              ),
+            ),
+          ),
+
           // Main Center Content
           Center(
             child: FadeTransition(
@@ -56,26 +81,55 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Decorative Icon
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF1493).withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome,
+                        size: 40,
+                        color: Color(0xFFFF1493),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
                     Text(
                       'ZION',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: AppTheme.primaryColor,
-                        letterSpacing: 4.0,
-                        fontSize: 56,
+                      style: GoogleFonts.philosopher(
+                        color: const Color(0xFFFF1493),
+                        letterSpacing: 10.0,
+                        fontSize: 64,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'SHOPPING',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppTheme.secondaryColor,
-                        letterSpacing: 2.0,
+                      style: GoogleFonts.philosopher(
+                        color: const Color(0xFF2D2D2D),
+                        letterSpacing: 5.0,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 48),
-                    // Loading indicator in Gold
-                    CircularProgressIndicator(
-                      color: AppTheme.secondaryColor,
+                    const SizedBox(height: 60),
+                    // Loading indicator
+                    const SizedBox(
+                      width: 40,
+                      child: LinearProgressIndicator(
+                        backgroundColor: Color(0xFFF3F3F3),
+                        color: Color(0xFFFF1493),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
                     ),
                   ],
                 ),
@@ -83,28 +137,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             ),
           ),
           
-          // Tibeb Bottom Strip
+          // Bottom Brand Strip
           Positioned(
-            bottom: 0,
+            bottom: 30,
             left: 0,
             right: 0,
-            child: Container(
-              height: 12,
-              decoration: const BoxDecoration(
-                gradient: AppTheme.tibebGradient,
-              ),
-            ),
-          ),
-          
-          // Decorative Top Strip (Optional, thinner)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 4,
-              decoration: const BoxDecoration(
-                gradient: AppTheme.tibebGradient,
+            child: Center(
+              child: Text(
+                'PREMIUM EXPERIENCE',
+                style: GoogleFonts.inter(
+                  letterSpacing: 2.0,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[400],
+                ),
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'onboarding_screen_1.dart';
 import 'onboarding_screen_2.dart';
 import 'onboarding_screen_3.dart';
@@ -33,6 +34,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           // Main page view
@@ -46,90 +48,93 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             children: _screens,
           ),
 
-          // Skip button (only show on first 3 screens)
+          // Top Controls (Skip)
           if (_currentPage < 3)
             Positioned(
               top: 60,
               right: 20,
               child: TextButton(
                 onPressed: () async {
-                  // Mark onboarding as completed when skipping
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.setBool('has_completed_onboarding', true);
 
-                  // Navigate to auth wrapper
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const AuthWrapper()),
                   );
                 },
-                child: const Text(
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFFF1493),
+                ),
+                child: Text(
                   'Skip',
-                  style: TextStyle(
-                    color: Color(0xFF880E4F),
+                  style: GoogleFonts.inter(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ),
 
-          // Next button (only show on first 3 screens)
-          if (_currentPage < 3)
-            Positioned(
-              bottom: 100,
-              left: 0,
-              right: 0,
-              child: ElevatedButton(
-                onPressed: () {
-                  _pageController.nextPage(
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF880E4F), // Dark pink
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: const Text(
-                  'Next',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-
-          // Page indicator
+          // Bottom Controls
           Positioned(
-            bottom: 50,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _screens.length,
-                (index) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 25 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _currentPage == index
-                        ? const Color(0xFF880E4F) // Active dot color
-                        : const Color(0xFFD1C4E9), // Inactive dot color
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
+            bottom: 40, // Slightly lower to save vertical space
+            left: 40,
+            right: 40,
+            child: Column(
+              children: [
+                // Next Button (Only show on first 3 screens)
+                if (_currentPage < 3)
+                  ElevatedButton(
+                    onPressed: () {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 600),
+                        curve: Curves.easeOutQuint,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF1493),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48), // Reduced from 56
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    ],
+                      elevation: 0,
+                    ),
+                    child: Text(
+                       'NEXT',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                
+                if (_currentPage < 3) const SizedBox(height: 24), // Reduced from 32
+
+                // Page indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _screens.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const Duration(milliseconds: 300) == const Duration(milliseconds: 300) 
+                        ? const EdgeInsets.symmetric(horizontal: 4) : EdgeInsets.zero,
+                      width: _currentPage == index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _currentPage == index
+                            ? const Color(0xFFFF1493)
+                            : const Color(0xFFFF1493).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         ],

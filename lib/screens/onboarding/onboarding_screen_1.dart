@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class OnboardingScreen1 extends StatelessWidget {
   const OnboardingScreen1({super.key});
@@ -6,201 +7,216 @@ class OnboardingScreen1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            const Color(0xFFFFF5F5), // Light pink
-            const Color(0xFFFFFFFF), // White
-          ],
-        ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Beautiful woman applying face cream with soft glow effect
-              Container(
-                height: 350,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.pink.shade100,
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 60),
+              // Premium Image Area - With decorations
+              SizedBox(
+                height: 320,
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    // Background with soft gradient
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFFFEAE6), // Very light pink
-                            Color(0xFFFFF8F7), // Even lighter pink
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    // Simulated image area with beauty products
+                    // Background Glow
                     Positioned(
-                      top: 20,
-                      left: 0,
-                      right: 0,
+                      top: 40,
                       child: Container(
-                        height: 200,
+                        width: 260,
+                        height: 260,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.transparent,
-                        ),
-                        child: Stack(
-                          children: [
-                            // Simulated woman's face area
-                            Positioned(
-                              top: 10,
-                              left: 20,
-                              right: 20,
-                              child: Container(
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF0F0).withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(100),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.8),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.face,
-                                  size: 80,
-                                  color: Color(0xFFFFB7C9), // Soft pink face icon
-                                ),
-                              ),
-                            ),
-                            // Simulated skincare products
-                            Positioned(
-                              bottom: 10,
-                              left: 10,
-                              child: Container(
-                                width: 60,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE8F5E9), // Light green for skincare
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: const Color(0xFFA5D6A7),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.opacity,
-                                  color: Color(0xFF4CAF50),
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 10,
-                              right: 10,
-                              child: Container(
-                                width: 60,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF3E5F5), // Light purple for serum
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: const Color(0xFFCE93D8),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.local_drink,
-                                  color: Color(0xFF7B1FA2),
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 10,
-                              left: 80,
-                              child: Container(
-                                width: 60,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE3F2FD), // Light blue for moisturizer
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: const Color(0xFF90CAF9),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.pin,
-                                  color: Color(0xFF1976D2),
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Soft glow effect
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
+                          shape: BoxShape.circle,
                           gradient: RadialGradient(
-                            center: const Alignment(0, -0.3),
-                            radius: 1.5,
                             colors: [
-                              Colors.transparent,
-                              const Color(0x22FFCDD2).withOpacity(0.3),
+                              const Color(0xFFFF1493).withOpacity(0.15),
+                              Colors.white.withOpacity(0.0),
                             ],
                           ),
                         ),
                       ),
                     ),
+                    // Image Container
+                    Container(
+                      height: 280,
+                      width: 280,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'assets/onboarding/onboarding_makeup.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    // Decorative Floating Icons
+                    _buildFloatingElement(
+                      top: 10,
+                      right: 10,
+                      icon: Icons.auto_awesome,
+                      color: const Color(0xFFFF1493),
+                    ),
+                    _buildFloatingElement(
+                      bottom: 30,
+                      left: 10,
+                      icon: Icons.favorite,
+                      color: const Color(0xFFFF69B4),
+                    ),
+                    _buildFloatingElement(
+                      top: 80,
+                      left: 0,
+                      icon: Icons.star,
+                      color: const Color(0xFFFFD700),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 40),
-              // Title
-              Text(
-                'Discover Your Glow',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: const Color(0xFF880E4F), // Dark pink
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
+              // Creative Artistic Text Area
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Layered Abstract Shapes for Depth
+                  Positioned(
+                    top: 0,
+                    right: 40,
+                    child: Container(
+                      width: 120,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFFF1493).withOpacity(0.08),
+                            const Color(0xFFFF1493).withOpacity(0.01),
+                          ],
+                        ),
+                      ),
                     ),
-              ),
-              const SizedBox(height: 20),
-              // Body text
-              Text(
-                'Experience luxury skincare tailored just for you. Unveil your natural radiance with our premium collection.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: const Color(0xFF5D4037), // Brownish text
-                      fontSize: 16,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 20,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFFF1493).withOpacity(0.04),
+                      ),
                     ),
+                  ),
+                  // Central Soft Glow
+                  Container(
+                    width: 320,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        colors: [
+                          const Color(0xFFFF1493).withOpacity(0.12),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Text Content
+                  Column(
+                    children: [
+                      // English Title - Philosopher Font
+                      Text(
+                        'Welcome to Zion Shopings',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.philosopher(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 32,
+                          letterSpacing: 0.8,
+                          color: const Color(0xFF2D2D2D),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      // Amharic Subtext - Noto Sans Ethiopic
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF1493).withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Text(
+                          'እንኳን ደህና መጡ',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.notoSansEthiopic(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            letterSpacing: 1.0,
+                            color: const Color(0xFFFF1493),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Micro Decorations near Text
+                  Positioned(
+                    top: -10,
+                    left: 40,
+                    child: Icon(Icons.auto_awesome, size: 16, color: const Color(0xFFFF1493).withOpacity(0.4)),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    right: 30,
+                    child: Icon(Icons.stars, size: 14, color: const Color(0xFFFFD700).withOpacity(0.6)),
+                  ),
+                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingElement({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.15),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: color,
         ),
       ),
     );

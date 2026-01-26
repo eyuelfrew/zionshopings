@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zionshopings/auth/auth_controller.dart';
@@ -66,10 +67,11 @@ class SignInBottomSheet extends StatelessWidget {
               // Title
               Text(
                 'Sign In Required',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textColor,
-                    ),
+                style: GoogleFonts.philosopher(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  color: const Color(0xFFFF1493),
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -112,9 +114,7 @@ class SignInBottomSheet extends StatelessWidget {
                       },
                       icon: Image.asset(
                         'assets/images/google_logo.png',
-                        height: 24.0,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.login, size: 24),
+                        height: 22.0,
                       ),
                       label: const Text(
                         'Sign In with Google',
@@ -124,11 +124,13 @@ class SignInBottomSheet extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF2D2D2D),
+                        elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
                     ),

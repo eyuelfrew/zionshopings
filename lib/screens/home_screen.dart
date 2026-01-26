@@ -429,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   // New Arrivals Horizontal Section
                                   SliverToBoxAdapter(
                                     child: NewArrivalsSection(
-                                      products: _products.take(6).toList(),
+                                      products: _products.take(8).toList(),
                                     ),
                                   ),
 

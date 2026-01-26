@@ -1,71 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:zionshopings/models/product_model.dart';
 import 'package:zionshopings/screens/all_products_screen.dart';
 
 class NewArrivalsSection extends StatelessWidget {
-  const NewArrivalsSection({super.key, dynamic products}); // Keeping signature for compatibility
+  final List<Product> products;
 
-  final List<Map<String, String>> _arrivals = const [
-    {
-      'image': 'assets/test-images/default.avif',
-      'title': 'Glow Essentials',
-    },
-    {
-      'image': 'assets/test-images/default (1).avif',
-      'title': 'Night Repair',
-    },
-    {
-      'image': 'assets/test-images/default (2).avif',
-      'title': 'Hydration Boost',
-    },
-    {
-      'image': 'assets/test-images/default (3).avif',
-      'title': 'Serum Magic',
-    },
-  ];
+  const NewArrivalsSection({
+    super.key,
+    required this.products,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (products.isEmpty) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            const Color(0xFFFFB6C1).withOpacity(0.1),
-            const Color(0xFFF8F8FF),
-          ],
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Colors.grey.shade100),
+          bottom: BorderSide(color: Colors.grey.shade100),
         ),
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'New At ZION',
-            style: TextStyle(
-              fontSize: 24,
+            style: GoogleFonts.philosopher(
+              fontSize: 26,
               fontWeight: FontWeight.w900,
-              fontFamily: 'Inter',
+              color: const Color(0xFF2D2D2D),
               letterSpacing: 1.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
-            'Latest Beauty Arrivals You\'ll Want To Own',
-            style: TextStyle(
+            'Discover Our Latest Beauty Arrivals',
+            style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.grey[600],
+              color: Colors.grey[500],
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 24),
           SizedBox(
-            height: 220,
+            height: 240,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _arrivals.length,
+              itemCount: products.length,
               itemBuilder: (context, index) {
-                final arrival = _arrivals[index];
-                return _buildArrivalCard(context, arrival);
+                final product = products[index];
+                return _buildArrivalCard(context, product);
               },
             ),
           ),
@@ -75,32 +63,33 @@ class NewArrivalsSection extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               height: 50,
-              child: OutlinedButton(
+              child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const AllProductsScreen()),
                   );
                 },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFFFF1493), width: 1.5),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF1493).withOpacity(0.05),
+                  foregroundColor: const Color(0xFFFF1493),
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Explore All New Items',
-                      style: TextStyle(
-                        color: Color(0xFFFF1493),
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward, size: 18, color: Color(0xFFFF1493)),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward, size: 18),
                   ],
                 ),
               ),
@@ -111,70 +100,93 @@ class NewArrivalsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildArrivalCard(BuildContext context, Map<String, String> arrival) {
+  Widget _buildArrivalCard(BuildContext context, Product product) {
+    // Standard image URL logic
+    final imageUrl = product.primaryImagePath.startsWith('http')
+        ? product.primaryImagePath
+        : 'http://localhost:5000${product.primaryImagePath}';
+
     return GestureDetector(
       onTap: () {
+        // Navigate to product detail (using AllProductsScreen as placeholder for now if specific detail exists)
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const AllProductsScreen()),
         );
       },
       child: Container(
-        width: 300, // Wider for banner feel
+        width: 320,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(
-                arrival['image']!,
+              Image.network(
+                imageUrl,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.image_not_supported_outlined, size: 40, color: Colors.grey),
+                ),
               ),
-              // Gradient Overlay for Text Readability
+              // Gradient Overlay for Depth
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withOpacity(0.6),
+                      Colors.black.withOpacity(0.7),
                       Colors.transparent,
                     ],
+                    stops: const [0.0, 0.6],
                   ),
                 ),
               ),
               Positioned(
-                bottom: 20,
-                left: 20,
+                bottom: 24,
+                left: 24,
+                right: 24,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      arrival['title']!,
-                      style: const TextStyle(
+                      product.name.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.philosopher(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
                       ),
                     ),
-                    const Text(
-                      'TAP TO SHOP',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        letterSpacing: 2,
-                      ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          'TAP TO SHOP',
+                          style: GoogleFonts.inter(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(Icons.shopping_bag_outlined, color: Colors.white.withOpacity(0.8), size: 14),
+                      ],
                     ),
                   ],
                 ),
